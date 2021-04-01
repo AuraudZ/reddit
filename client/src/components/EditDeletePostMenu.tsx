@@ -20,8 +20,8 @@ export const EditDeletePostMenu: React.FC<EditDeletePostMenuProps> = ({
   id,
   creatorId,
 }) => {
-  const [{ data: meData }] = useMeQuery();
-  const [, deletePost] = useDeletePostMutation();
+  const { data: meData } = useMeQuery();
+  const [deletePost] = useDeletePostMutation();
   if (meData?.me?.id !== creatorId) {
     return null;
   }
@@ -40,7 +40,7 @@ export const EditDeletePostMenu: React.FC<EditDeletePostMenuProps> = ({
           <MenuItem
             icon={<DeleteIcon />}
             onClick={() => {
-              deletePost({ id });
+              deletePost({ variables: { id } });
             }}
           >
             Delete Post

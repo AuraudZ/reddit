@@ -11,23 +11,23 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import router from "next/router";
 import React from "react";
 import { FaUser, FaUserPlus, FaUserSlash } from "react-icons/fa";
 import { Logo } from "../components/Logo";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 import DarkMenuItem from "./DarkMenuItem";
+import { useRouter } from "next/router";
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
-  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
-
-  const [{ data, fetching }] = useMeQuery({
-    pause: isServer(),
+  const [logout, { loading: logoutFetching }] = useLogoutMutation();
+  const router = useRouter();
+  const { data, loading } = useMeQuery({
+    skip: isServer(),
   });
   let body = null;
-  if (fetching) {
+  if (loading) {
     // user not logged in
   } else if (!data?.me) {
     body = (
@@ -81,8 +81,9 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                 <MenuItem
                   isLoading={logoutFetching}
                   icon={<Icon as={FaUserSlash} />}
-                  onClick={() => {
-                    logout();
+                  onClick={async () => {
+                    await logout();
+                    router.reload();
                   }}
                 >
                   Logout

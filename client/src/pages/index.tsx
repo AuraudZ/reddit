@@ -8,31 +8,28 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import React, { useState } from "react";
 import { EditDeletePostMenu } from "../components/EditDeletePostMenu";
 import { Layout } from "../components/Layout";
 import { Upvote } from "../components/Upvote";
-import { useMeQuery, usePostsQuery } from "../generated/graphql";
-import { createUrqlClient } from "../utils/createUrqlClient";
+import { usePostsQuery } from "../generated/graphql";
 const Index = () => {
   const [variables, setVariables] = useState({
     limit: 33,
     cursor: null as null | string,
   });
-  const [{ data: meData }] = useMeQuery();
-  const [{ data, fetching }] = usePostsQuery({
+  const { data, loading } = usePostsQuery({
     variables,
   });
-  if (!fetching && !data) {
+  if (!loading && !data) {
     return <div>You got no posts lol</div>;
   }
   const editColor = useColorModeValue("gray", "red");
 
   return (
     <Layout>
-      {!data && fetching ? (
+      {!data && loading ? (
         <div>loading...</div>
       ) : (
         <Stack spacing={8} rounded={1}>
@@ -79,7 +76,7 @@ const Index = () => {
                 cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
               });
             }}
-            isLoading={fetching}
+            isLoading={loading}
             m="auto"
             my={8}
             colorScheme="teal"
@@ -92,4 +89,4 @@ const Index = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
+export default Index;
