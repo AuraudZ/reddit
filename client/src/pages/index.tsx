@@ -8,19 +8,20 @@ import {
   Text,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { withApollo } from "../utils/withApollo";
 import NextLink from "next/link";
 import React, { useState } from "react";
 import { EditDeletePostMenu } from "../components/EditDeletePostMenu";
 import { Layout } from "../components/Layout";
 import { Upvote } from "../components/Upvote";
-import { usePostsQuery } from "../generated/graphql";
+import { PostsQuery, usePostsQuery } from "../generated/graphql";
 const Index = () => {
-  const [variables, setVariables] = useState({
-    limit: 33,
-    cursor: null as null | string,
-  });
-  const { data, loading } = usePostsQuery({
-    variables,
+  const { data, loading, fetchMore, variables } = usePostsQuery({
+    variables: {
+      limit: 15,
+      cursor: null,
+    },
+    notifyOnNetworkStatusChange: true,
   });
   if (!loading && !data) {
     return <div>You got no posts lol</div>;
@@ -71,15 +72,17 @@ const Index = () => {
         <Flex>
           <Button
             onClick={() => {
-              setVariables({
-                limit: variables.limit,
-                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
+              fetchMore({
+                variables: {
+                  limit: variables?.limit,
+                  cursor:
+                    data.posts.posts[data.posts.posts.length - 1].createdAt,
+                },
               });
             }}
             isLoading={loading}
             m="auto"
             my={8}
-            colorScheme="teal"
           >
             Load More
           </Button>
@@ -89,4 +92,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default withApollo({ ssr: true })(Index);

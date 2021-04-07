@@ -1,57 +1,47 @@
 import {
-  Resolver,
-  Query,
   Arg,
-  Mutation,
-  InputType,
-  Field,
   Ctx,
-  UseMiddleware,
-  Int,
+  Field,
   FieldResolver,
-  Root,
+  InputType,
+  Int,
+  Mutation,
   ObjectType,
-  Info,
+  Query,
+  Resolver,
+  Root,
+  UseMiddleware,
 } from "type-graphql";
-import { Post } from "../entities/Post";
-import { MyContext } from "../types";
-import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { Comment } from "../entities/Comment";
 import { Updoot } from "../entities/Updoot";
-import { tmpdir } from "os";
 import { User } from "../entities/User";
+import { isAuth } from "../middleware/isAuth";
+import { MyContext } from "../types";
 
 @InputType()
-class PostInput {
+class CommentInput {
   @Field()
   title: string;
   @Field()
   text: string;
 }
 
-@ObjectType()
-class PaginatedPosts {
-  @Field(() => [Post])
-  posts: Post[];
-  @Field()
-  hasMore: boolean;
-}
-
-@Resolver(Post)
-export class PostResolver {
+@Resolver(Comment)
+export class CommentResolver {
   @FieldResolver(() => String)
-  textSnippet(@Root() post: Post) {
+  textSnippet(@Root() post: Comment) {
     return post.text.slice(0, 50);
   }
 
   @FieldResolver(() => User)
-  creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
+  creator(@Root() post: Comment, @Ctx() { userLoader }: MyContext) {
     return userLoader.load(post.creatorId);
   }
 
   @FieldResolver(() => Int, { nullable: true })
   async voteStatus(
-    @Root() post: Post,
+    @Root() post: Comment,
     @Ctx() { updootLoader, req }: MyContext
   ) {
     if (!req.session.userId) {
@@ -69,7 +59,7 @@ export class PostResolver {
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
   async vote(
-    @Arg("postId", () => Int) postId: number,
+    @Arg("commentId", () => Int) postId: number,
     @Arg("value", () => Int) value: number,
     @Ctx() { req }: MyContext
   ) {
@@ -85,19 +75,19 @@ export class PostResolver {
       await getConnection().transaction(async (tm) => {
         await tm.query(
           `
-    update updoot
-    set value = $1
-    where "postId" = $2 and "userId" = $3
-        `,
+      update updoot
+      set value = $1
+      where "postId" = $2 and "userId" = $3
+          `,
           [realValue, postId, userId]
         );
 
         await tm.query(
           `
-          update post
-          set points = points + $1
-          where id = $2
-        `,
+            update post
+            set points = points + $1
+            where id = $2
+          `,
           [2 * realValue, postId]
         );
       });
@@ -106,18 +96,18 @@ export class PostResolver {
       await getConnection().transaction(async (tm) => {
         await tm.query(
           `
-    insert into updoot ("userId", "postId", value)
-    values ($1, $2, $3)
-        `,
+      insert into updoot ("userId", "postId", value)
+      values ($1, $2, $3)
+          `,
           [userId, postId, realValue]
         );
 
         await tm.query(
           `
-    update post
-    set points = points + $1
-    where id = $2
-      `,
+      update post
+      set points = points + $1
+      where id = $2
+        `,
           [realValue, postId]
         );
       });
@@ -125,67 +115,34 @@ export class PostResolver {
     return true;
   }
 
-  @Query(() => PaginatedPosts)
-  async posts(
-    @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
-    @Ctx() { req }: MyContext
-  ): Promise<PaginatedPosts> {
-    // 20 -> 21
-    const realLimit = Math.min(50, limit);
-    const reaLimitPlusOne = realLimit + 1;
-
-    const replacements: any[] = [reaLimitPlusOne];
-
-    if (cursor) {
-      replacements.push(new Date(parseInt(cursor)));
-    }
-
-    const posts = await getConnection().query(
-      `
-    select p.*
-    from post p
-    ${cursor ? `where p."createdAt" < $2` : ""}
-    order by p."createdAt" DESC
-    limit $1
-    `,
-      replacements
-    );
-
-    return {
-      posts: posts.slice(0, realLimit),
-      hasMore: posts.length === reaLimitPlusOne,
-    };
+  @Query(() => Comment, { nullable: true })
+  post(@Arg("id", () => Int) id: number): Promise<Comment | undefined> {
+    return Comment.findOne(id);
   }
 
-  @Query(() => Post, { nullable: true })
-  post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
-    return Post.findOne(id);
-  }
-
-  @Mutation(() => Post)
+  @Mutation(() => Comment)
   @UseMiddleware(isAuth)
-  async createPost(
-    @Arg("input") input: PostInput,
+  async createComment(
+    @Arg("input") input: CommentInput,
     @Ctx() { req }: MyContext
-  ): Promise<Post> {
-    return Post.create({
+  ): Promise<Comment> {
+    return Comment.create({
       ...input,
       creatorId: req.session.userId,
     }).save();
   }
 
-  @Mutation(() => Post, { nullable: true })
+  @Mutation(() => Comment, { nullable: true })
   @UseMiddleware(isAuth)
-  async updatePost(
+  async updateComment(
     @Arg("id", () => Int) id: number,
     @Arg("title") title: string,
     @Arg("text") text: string,
     @Ctx() { req }: MyContext
-  ): Promise<Post | null> {
+  ): Promise<Comment | null> {
     const result = await getConnection()
       .createQueryBuilder()
-      .update(Post)
+      .update(Comment)
       .set({ title, text })
       .where('id = :id and "creatorId" = :creatorId', {
         id,
@@ -199,23 +156,11 @@ export class PostResolver {
 
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
-  async deletePost(
+  async deleteComment(
     @Arg("id", () => Int) id: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    // not cascade way
-    // const post = await Post.findOne(id);
-    // if (!post) {
-    //   return false;
-    // }
-    // if (post.creatorId !== req.session.userId) {
-    //   throw new Error("not authorized");
-    // }
-
-    // await Updoot.delete({ postId: id });
-    // await Post.delete({ id });
-
-    await Post.delete({ id, creatorId: req.session.userId });
+    await Comment.delete({ id, creatorId: req.session.userId });
     return true;
   }
 }

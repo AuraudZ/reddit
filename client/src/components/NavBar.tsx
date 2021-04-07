@@ -2,7 +2,6 @@ import { AddIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Box,
   Button,
-  ChakraProvider,
   Flex,
   Icon,
   Menu,
@@ -18,10 +17,12 @@ import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
 import DarkMenuItem from "./DarkMenuItem";
 import { useRouter } from "next/router";
+import { useApolloClient } from "@apollo/client";
 interface NavBarProps {}
 
 export const NavBar: React.FC<NavBarProps> = ({}) => {
   const [logout, { loading: logoutFetching }] = useLogoutMutation();
+  const apolloClient = useApolloClient();
   const router = useRouter();
   const { data, loading } = useMeQuery({
     skip: isServer(),
@@ -83,7 +84,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
                   icon={<Icon as={FaUserSlash} />}
                   onClick={async () => {
                     await logout();
-                    router.reload();
+                    await apolloClient.resetStore();
                   }}
                 >
                   Logout

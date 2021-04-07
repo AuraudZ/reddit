@@ -26,6 +26,7 @@
     "framer-motion": "^3.10.3",
     "graphql": "^15.5.0",
     "next": "latest",
+    "next-apollo": "^5.0.4",
     "next-cookies": "^2.0.3",
     "next-urql": "^3.0.0",
     "react": "^17.0.1",

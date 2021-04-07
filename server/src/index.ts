@@ -14,9 +14,11 @@ import { createConnection } from "typeorm";
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import { Updoot } from "./entities/Updoot";
+import { Comment } from "./entities/Comment";
 import path from "path";
 import { createUserLoader } from "./utils/createUserLoader";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
+import { CommentResolver } from "./resolvers/comment";
 
 const main = async () => {
   const conn = await createConnection({
@@ -29,7 +31,7 @@ const main = async () => {
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, Updoot],
   });
-  await conn.runMigrations();
+  // await conn.runMigrations();
 
   // await Post.delete({});
 
@@ -52,9 +54,9 @@ const main = async () => {
       }),
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
-        httpOnly: true,
+        httpOnly: false,
         sameSite: "lax", // csrf
-        secure: __prod__, // cookie only works in https
+        // secure: __prod__, // cookie only works in https
       },
       saveUninitialized: false,
       secret: "qowiueojwojfalksdjoqiwueo",

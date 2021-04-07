@@ -40,7 +40,12 @@ export const EditDeletePostMenu: React.FC<EditDeletePostMenuProps> = ({
           <MenuItem
             icon={<DeleteIcon />}
             onClick={() => {
-              deletePost({ variables: { id } });
+              deletePost({
+                variables: { id },
+                update: (cache) => {
+                  cache.evict({ id: "Post:" + id });
+                },
+              });
             }}
           >
             Delete Post
