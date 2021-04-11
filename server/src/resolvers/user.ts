@@ -173,6 +173,16 @@ export class UserResolver {
       //|| err.detail.includes("already exists")) {
       // duplicate username error
       if (err.code === "23505") {
+        if (err.detail.includes("email")) {
+          return {
+            errors: [
+              {
+                field: "email",
+                message: "email already taken",
+              },
+            ],
+          };
+        }
         return {
           errors: [
             {
@@ -208,7 +218,7 @@ export class UserResolver {
         errors: [
           {
             field: "usernameOrEmail",
-            message: "that username doesn't exist",
+            message: "Username Invalid",
           },
         ],
       };
@@ -219,7 +229,7 @@ export class UserResolver {
         errors: [
           {
             field: "password",
-            message: "incorrect password",
+            message: "Incorrect Password",
           },
         ],
       };

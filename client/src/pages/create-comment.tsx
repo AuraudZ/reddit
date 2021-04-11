@@ -10,7 +10,7 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 import { useIsAuth } from "../utils/useIsAuth";
 import { withApollo } from "../utils/withApollo";
 
-const CommentForm: React.FC<{}> = ({}) => {
+const CreateComment: React.FC<{}> = ({}) => {
   const router = useRouter();
   useIsAuth();
   const [createPost] = useCreatePostMutation();
@@ -58,7 +58,7 @@ const CommentForm: React.FC<{}> = ({}) => {
                 isLoading={isSubmitting}
                 variant="outline"
               >
-                Create Post
+                Create Comment
               </Button>
             </Form>
           )}
@@ -68,4 +68,4 @@ const CommentForm: React.FC<{}> = ({}) => {
   );
 };
 
-export default withApollo({ ssr: false })(CommentForm);
+export default withApollo({ ssr: false })(CreateComment);

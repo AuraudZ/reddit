@@ -14,6 +14,7 @@ const type_graphql_1 = require("type-graphql");
 const typeorm_1 = require("typeorm");
 const Post_1 = require("./Post");
 const Updoot_1 = require("./Updoot");
+const Comment_1 = require("./Comment");
 let User = class User extends typeorm_1.BaseEntity {
 };
 __decorate([
@@ -35,6 +36,10 @@ __decorate([
     typeorm_1.Column(),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
+__decorate([
+    typeorm_1.OneToMany(() => Comment_1.Comment, (comment) => comment.creator),
+    __metadata("design:type", Array)
+], User.prototype, "comments", void 0);
 __decorate([
     typeorm_1.OneToMany(() => Post_1.Post, (post) => post.creator),
     __metadata("design:type", Array)

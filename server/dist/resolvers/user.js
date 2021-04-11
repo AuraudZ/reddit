@@ -153,6 +153,16 @@ let UserResolver = class UserResolver {
             }
             catch (err) {
                 if (err.code === "23505") {
+                    if (err.detail.includes("email")) {
+                        return {
+                            errors: [
+                                {
+                                    field: "email",
+                                    message: "email already taken",
+                                },
+                            ],
+                        };
+                    }
                     return {
                         errors: [
                             {
@@ -177,7 +187,7 @@ let UserResolver = class UserResolver {
                     errors: [
                         {
                             field: "usernameOrEmail",
-                            message: "that username doesn't exist",
+                            message: "Username Invalid",
                         },
                     ],
                 };
@@ -188,7 +198,7 @@ let UserResolver = class UserResolver {
                     errors: [
                         {
                             field: "password",
-                            message: "incorrect password",
+                            message: "Incorrect Password",
                         },
                     ],
                 };

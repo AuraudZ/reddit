@@ -47,8 +47,8 @@ export const Register: React.FC<registerProps> = ({}) => {
             {({ isSubmitting }) => (
               <Form>
                 <InputField
-                  name="username"
-                  placeholder="username"
+                  name="Username"
+                  placeholder="Username"
                   label="Username"
                 />
                 <Box mt={4}>
@@ -56,8 +56,8 @@ export const Register: React.FC<registerProps> = ({}) => {
                 </Box>
                 <Box mt={4}>
                   <InputField
-                    name="password"
-                    placeholder="password"
+                    name="Password"
+                    placeholder="Password"
                     label="Password"
                     type="password"
                   />

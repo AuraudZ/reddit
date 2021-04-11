@@ -23,11 +23,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentResolver = void 0;
 const type_graphql_1 = require("type-graphql");
-const typeorm_1 = require("typeorm");
 const Comment_1 = require("../entities/Comment");
+const isAuth_1 = require("../middleware/isAuth");
+const typeorm_1 = require("typeorm");
 const Updoot_1 = require("../entities/Updoot");
 const User_1 = require("../entities/User");
-const isAuth_1 = require("../middleware/isAuth");
 let CommentInput = class CommentInput {
 };
 __decorate([
@@ -41,68 +41,104 @@ __decorate([
 CommentInput = __decorate([
     type_graphql_1.InputType()
 ], CommentInput);
+let PaginatedComments = class PaginatedComments {
+};
+__decorate([
+    type_graphql_1.Field(() => [Comment_1.Comment]),
+    __metadata("design:type", Array)
+], PaginatedComments.prototype, "comments", void 0);
+__decorate([
+    type_graphql_1.Field(),
+    __metadata("design:type", Boolean)
+], PaginatedComments.prototype, "hasMore", void 0);
+PaginatedComments = __decorate([
+    type_graphql_1.ObjectType()
+], PaginatedComments);
 let CommentResolver = class CommentResolver {
-    textSnippet(post) {
-        return post.text.slice(0, 50);
+    textSnippet(comment) {
+        return comment.text.slice(0, 50);
     }
-    creator(post, { userLoader }) {
-        return userLoader.load(post.creatorId);
+    creator(comment, { userLoader }) {
+        return userLoader.load(comment.creatorId);
     }
-    voteStatus(post, { updootLoader, req }) {
+    voteStatus(comment, { commentLoader, req }) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!req.session.userId) {
                 return null;
             }
-            const updoot = yield updootLoader.load({
-                postId: post.id,
+            const updoot = yield commentLoader.load({
+                commentId: comment.id,
                 userId: req.session.userId,
             });
             return updoot ? updoot.value : null;
         });
     }
-    vote(postId, value, { req }) {
+    vote(commentId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const isUpdoot = value !== -1;
             const realValue = isUpdoot ? 1 : -1;
             const { userId } = req.session;
-            const updoot = yield Updoot_1.Updoot.findOne({ where: { postId, userId } });
+            const updoot = yield Updoot_1.Updoot.findOne({
+                where: { commentId, userId },
+            });
             if (updoot && updoot.value !== realValue) {
                 yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
                     yield tm.query(`
-      update updoot
-      set value = $1
-      where "postId" = $2 and "userId" = $3
-          `, [realValue, postId, userId]);
+    update updoot
+    set value = $1
+    where "commentId" = $2 and "userId" = $3
+        `, [realValue, commentId, userId]);
                     yield tm.query(`
-            update post
-            set points = points + $1
-            where id = $2
-          `, [2 * realValue, postId]);
+          update comment
+          set points = points + $1
+          where id = $2
+        `, [2 * realValue, commentId]);
                 }));
             }
             else if (!updoot) {
                 yield typeorm_1.getConnection().transaction((tm) => __awaiter(this, void 0, void 0, function* () {
                     yield tm.query(`
-      insert into updoot ("userId", "postId", value)
-      values ($1, $2, $3)
-          `, [userId, postId, realValue]);
+    insert into updoot ("userId", "commentId", value)
+    values ($1, $2, $3)
+        `, [userId, commentId, realValue]);
                     yield tm.query(`
-      update post
-      set points = points + $1
-      where id = $2
-        `, [realValue, postId]);
+    update comment
+    set points = points + $1
+    where id = $2
+      `, [realValue, commentId]);
                 }));
             }
             return true;
         });
     }
-    post(id) {
-        return Comment_1.Comment.findOne(id);
-    }
     createComment(input, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             return Comment_1.Comment.create(Object.assign(Object.assign({}, input), { creatorId: req.session.userId })).save();
         });
+    }
+    comments(limit, cursor, { req }) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const realLimit = Math.min(25, limit);
+            const reaLimitPlusOne = realLimit + 1;
+            const replacements = [reaLimitPlusOne];
+            if (cursor) {
+                replacements.push(new Date(parseInt(cursor)));
+            }
+            const comments = yield typeorm_1.getConnection().query(`
+    select p.*
+    from post p
+    ${cursor ? `where p."createdAt" < $2` : ""}
+    order by p."createdAt" DESC
+    limit $1
+    `, replacements);
+            return {
+                comments: comments.slice(0, realLimit),
+                hasMore: comments.length === reaLimitPlusOne,
+            };
+        });
+    }
+    comment(id) {
+        return Comment_1.Comment.findOne(id);
     }
     updateComment(id, title, text, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -159,13 +195,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CommentResolver.prototype, "vote", null);
 __decorate([
-    type_graphql_1.Query(() => Comment_1.Comment, { nullable: true }),
-    __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], CommentResolver.prototype, "post", null);
-__decorate([
     type_graphql_1.Mutation(() => Comment_1.Comment),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
     __param(0, type_graphql_1.Arg("input")),
@@ -174,6 +203,22 @@ __decorate([
     __metadata("design:paramtypes", [CommentInput, Object]),
     __metadata("design:returntype", Promise)
 ], CommentResolver.prototype, "createComment", null);
+__decorate([
+    type_graphql_1.Query(() => PaginatedComments),
+    __param(0, type_graphql_1.Arg("limit", () => type_graphql_1.Int)),
+    __param(1, type_graphql_1.Arg("cursor", () => String, { nullable: true })),
+    __param(2, type_graphql_1.Ctx()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object, Object]),
+    __metadata("design:returntype", Promise)
+], CommentResolver.prototype, "comments", null);
+__decorate([
+    type_graphql_1.Query(() => Comment_1.Comment, { nullable: true }),
+    __param(0, type_graphql_1.Arg("id", () => type_graphql_1.Int)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], CommentResolver.prototype, "comment", null);
 __decorate([
     type_graphql_1.Mutation(() => Comment_1.Comment, { nullable: true }),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),

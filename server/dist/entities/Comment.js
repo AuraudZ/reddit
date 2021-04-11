@@ -17,7 +17,7 @@ const Updoot_1 = require("./Updoot");
 let Comment = class Comment extends typeorm_1.BaseEntity {
 };
 __decorate([
-    type_graphql_1.Field(),
+    type_graphql_1.Field(() => type_graphql_1.Int),
     typeorm_1.PrimaryGeneratedColumn(),
     __metadata("design:type", Number)
 ], Comment.prototype, "id", void 0);
@@ -51,7 +51,8 @@ __decorate([
     __metadata("design:type", User_1.User)
 ], Comment.prototype, "creator", void 0);
 __decorate([
-    typeorm_1.OneToMany(() => Updoot_1.Updoot, (updoot) => updoot.post),
+    type_graphql_1.Field(),
+    typeorm_1.OneToMany(() => Updoot_1.Updoot, (updoot) => updoot.comment),
     __metadata("design:type", Array)
 ], Comment.prototype, "updoots", void 0);
 __decorate([

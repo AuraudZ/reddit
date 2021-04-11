@@ -3,14 +3,16 @@ import { ChakraProvider, CSSReset } from "@chakra-ui/react";
 import React from "react";
 import { PaginatedPosts, PostsQuery } from "../generated/graphql";
 import theme from "../theme";
-
+import { DarkModeFlash } from "../components/DarkModeFlash";
 function App({ Component, pageProps }: any) {
   return (
-    <ChakraProvider theme={theme}>
+    <DarkModeFlash cookies={pageProps.cookies}>
       <CSSReset />
       <Component {...pageProps} />
-    </ChakraProvider>
+    </DarkModeFlash>
   );
 }
+
+export { getServerSideProps } from "../components/DarkModeFlash";
 
 export default App;

@@ -24,5 +24,10 @@
     "baseUrl": "."
   },
   "exclude": ["node_modules"],
-  "include": ["./src/**/*.tsx", "./src/**/*.ts", "1616993805257-MockPosts.ts"]
+  "include": [
+    "./src/**/*.tsx",
+    "./src/**/*.ts",
+    "1616993805257-MockPosts.ts",
+    "src/entities/Comment.js"
+  ]
 }
