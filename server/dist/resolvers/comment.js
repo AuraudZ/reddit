@@ -126,7 +126,7 @@ let CommentResolver = class CommentResolver {
             }
             const comments = yield typeorm_1.getConnection().query(`
     select p.*
-    from post p
+    from comment p
     ${cursor ? `where p."createdAt" < $2` : ""}
     order by p."createdAt" DESC
     limit $1

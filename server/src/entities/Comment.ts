@@ -15,7 +15,7 @@ import { Updoot } from "./Updoot";
 @ObjectType()
 @Entity()
 export class Comment extends BaseEntity {
-  @Field(() => Int)
+  @Field()
   @PrimaryGeneratedColumn()
   id!: number;
 
@@ -38,11 +38,9 @@ export class Comment extends BaseEntity {
   @Column()
   creatorId: number;
 
-  @Field()
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.comments)
   creator: User;
 
-  @Field()
   @OneToMany(() => Updoot, (updoot) => updoot.comment)
   updoots: Updoot[];
 

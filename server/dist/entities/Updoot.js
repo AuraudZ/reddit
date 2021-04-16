@@ -33,14 +33,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Updoot.prototype, "postId", void 0);
 __decorate([
-    typeorm_1.Column({ type: "int" }),
-    __metadata("design:type", Number)
-], Updoot.prototype, "commentId", void 0);
-__decorate([
     typeorm_1.ManyToOne(() => Post_1.Post, (post) => post.updoots, {
-        onDelete: "CASCADE",
-    }),
-    typeorm_1.ManyToOne(() => Comment_1.Comment, (comment) => comment.updoots, {
         onDelete: "CASCADE",
     }),
     __metadata("design:type", Comment_1.Comment)

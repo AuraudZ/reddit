@@ -33,6 +33,7 @@ const path_1 = __importDefault(require("path"));
 const createUserLoader_1 = require("./utils/createUserLoader");
 const createUpdootLoader_1 = require("./utils/createUpdootLoader");
 const comment_1 = require("./resolvers/comment");
+const createCommentLoader_1 = require("./utils/createCommentLoader");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     const conn = yield typeorm_1.createConnection({
         type: "postgres",
@@ -77,6 +78,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
             redis,
             userLoader: createUserLoader_1.createUserLoader(),
             updootLoader: createUpdootLoader_1.createUpdootLoader(),
+            commentLoader: createCommentLoader_1.createCommentLoader(),
         }),
     });
     apolloServer.applyMiddleware({

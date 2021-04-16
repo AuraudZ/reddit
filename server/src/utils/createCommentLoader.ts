@@ -1,6 +1,5 @@
 import { Updoot } from "../entities/Updoot";
 import DataLoader from "dataloader";
-
 // [{postId: 5, userId: 10}]
 // [{postId: 5, userId: 10, value: 1}]
 export const createCommentLoader = () =>

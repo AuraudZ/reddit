@@ -19,6 +19,7 @@ import path from "path";
 import { createUserLoader } from "./utils/createUserLoader";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
 import { CommentResolver } from "./resolvers/comment";
+import { createCommentLoader } from "./utils/createCommentLoader";
 
 const main = async () => {
   const conn = await createConnection({
@@ -75,6 +76,7 @@ const main = async () => {
       redis,
       userLoader: createUserLoader(),
       updootLoader: createUpdootLoader(),
+      commentLoader: createCommentLoader(),
     }),
   });
 

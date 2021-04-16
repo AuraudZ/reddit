@@ -11,7 +11,6 @@ import {
   FieldResolver,
   Root,
   ObjectType,
-  Info,
 } from "type-graphql";
 import { Comment } from "../entities/Comment";
 import { MyContext } from "../types";
@@ -155,7 +154,7 @@ export class CommentResolver {
     const comments = await getConnection().query(
       `
     select p.*
-    from post p
+    from comment p
     ${cursor ? `where p."createdAt" < $2` : ""}
     order by p."createdAt" DESC
     limit $1
