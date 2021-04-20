@@ -14,12 +14,10 @@ import { createConnection } from "typeorm";
 import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import { Updoot } from "./entities/Updoot";
-import { Comment } from "./entities/Comment";
 import path from "path";
 import { createUserLoader } from "./utils/createUserLoader";
 import { createUpdootLoader } from "./utils/createUpdootLoader";
 import { CommentResolver } from "./resolvers/comment";
-import { createCommentLoader } from "./utils/createCommentLoader";
 
 const main = async () => {
   const conn = await createConnection({
@@ -30,9 +28,14 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
-    entities: [Post, User, Updoot, Comment],
+    entities: [
+      Post,
+      User,
+      Updoot,
+      //  Comment
+    ],
   });
-  // await conn.runMigrations();
+  //await conn.runMigrations();
 
   // await Post.delete({});
 
@@ -67,7 +70,12 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver, PostResolver, UserResolver, CommentResolver],
+      resolvers: [
+        HelloResolver,
+        PostResolver,
+        UserResolver,
+        //  CommentResolver
+      ],
       validate: false,
     }),
     context: ({ req, res }) => ({
@@ -76,7 +84,6 @@ const main = async () => {
       redis,
       userLoader: createUserLoader(),
       updootLoader: createUpdootLoader(),
-      commentLoader: createCommentLoader(),
     }),
   });
 
