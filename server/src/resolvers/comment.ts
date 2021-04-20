@@ -46,22 +46,22 @@ export class CommentResolver {
   creator(@Root() comment: Comment, @Ctx() { userLoader }: MyContext) {
     return userLoader.load(comment.creatorId);
   }
-  @FieldResolver(() => Int, { nullable: true })
-  async voteStatus(
-    @Root() comment: Comment,
-    @Ctx() { commentLoader, req }: MyContext
-  ) {
-    if (!req.session.userId) {
-      return null;
-    }
+  // @FieldResolver(() => Int, { nullable: true })
+  // async voteStatus(
+  //   @Root() comment: Comment,
+  //   @Ctx() { commentLoader, req }: MyContext
+  // ) {
+  //   if (!req.session.userId) {
+  //     return null;
+  //   }
 
-    const updoot = await commentLoader.load({
-      commentId: comment.id,
-      userId: req.session.userId,
-    });
+  //   const updoot = await .load({
+  //     commentId: comment.id,
+  //     userId: req.session.userId,
+  //   });
 
-    return updoot ? updoot.value : null;
-  }
+  //   return updoot ? updoot.value : null;
+  // }
 
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)

@@ -1,15 +1,17 @@
 import { Form, Formik } from "formik";
-import { Box, Button } from "@chakra-ui/react";
+import { Box, Button, useToast } from "@chakra-ui/react";
 import { Wrapper } from "../components/Wrapper";
 import { InputField } from "../components/InputField";
 import { MeDocument, MeQuery, useRegisterMutation } from "../generated/graphql";
 import { toErrorMap } from "../utils/toErrorMap";
 import { useRouter } from "next/router";
 import { withApollo } from "../utils/withApollo";
+import { sleep } from "../utils/sleep";
 interface registerProps {}
 
 export const Register: React.FC<registerProps> = ({}) => {
   const [register] = useRegisterMutation();
+  const toast = useToast();
   const router = useRouter();
   return (
     <>
@@ -39,6 +41,15 @@ export const Register: React.FC<registerProps> = ({}) => {
               if (response.data?.register.errors) {
                 setErrors(toErrorMap(response.data.register.errors));
               } else if (response.data?.register.user) {
+                toast({
+                  title: "Register Successful.",
+                  description: "Registered Successfully.",
+                  status: "success",
+                  duration: 5000,
+                  variant: "top-accent",
+                  isClosable: true,
+                });
+                sleep(100);
                 // worked
                 router.push("/");
               }

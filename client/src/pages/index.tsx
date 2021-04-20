@@ -24,7 +24,7 @@ const Index = () => {
     notifyOnNetworkStatusChange: true,
   });
   if (!loading && !data) {
-    return <div>You got no posts lol</div>;
+    return <div>Some thing broke right</div>;
   }
   const editColor = useColorModeValue("gray", "red");
 

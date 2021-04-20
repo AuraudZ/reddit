@@ -13,7 +13,6 @@ exports.Updoot = void 0;
 const typeorm_1 = require("typeorm");
 const User_1 = require("./User");
 const Post_1 = require("./Post");
-const Comment_1 = require("./Comment");
 let Updoot = class Updoot extends typeorm_1.BaseEntity {
 };
 __decorate([
@@ -36,8 +35,8 @@ __decorate([
     typeorm_1.ManyToOne(() => Post_1.Post, (post) => post.updoots, {
         onDelete: "CASCADE",
     }),
-    __metadata("design:type", Comment_1.Comment)
-], Updoot.prototype, "comment", void 0);
+    __metadata("design:type", Post_1.Post)
+], Updoot.prototype, "post", void 0);
 Updoot = __decorate([
     typeorm_1.Entity()
 ], Updoot);

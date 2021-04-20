@@ -30,8 +30,8 @@ export class User extends BaseEntity {
   @Column()
   password!: string;
 
-  @OneToMany(() => Comment, (comment) => comment.creator)
-  comments: Comment[];
+  // @OneToMany(() => Comment, (comment) => comment.creator)
+  // comments: Comment[];
 
   @OneToMany(() => Post, (post) => post.creator)
   posts: Post[];

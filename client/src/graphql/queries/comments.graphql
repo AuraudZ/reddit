@@ -1,0 +1,8 @@
+query Comments($limit: Int!, $cursor: String) {
+  comments(limit: $limit, cursor: $cursor) {
+    hasMore
+    comments {
+      ...CommentSnippet
+    }
+  }
+}

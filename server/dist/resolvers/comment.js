@@ -61,18 +61,6 @@ let CommentResolver = class CommentResolver {
     creator(comment, { userLoader }) {
         return userLoader.load(comment.creatorId);
     }
-    voteStatus(comment, { commentLoader, req }) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!req.session.userId) {
-                return null;
-            }
-            const updoot = yield commentLoader.load({
-                commentId: comment.id,
-                userId: req.session.userId,
-            });
-            return updoot ? updoot.value : null;
-        });
-    }
     vote(commentId, value, { req }) {
         return __awaiter(this, void 0, void 0, function* () {
             const isUpdoot = value !== -1;
@@ -176,14 +164,6 @@ __decorate([
     __metadata("design:paramtypes", [Comment_1.Comment, Object]),
     __metadata("design:returntype", void 0)
 ], CommentResolver.prototype, "creator", null);
-__decorate([
-    type_graphql_1.FieldResolver(() => type_graphql_1.Int, { nullable: true }),
-    __param(0, type_graphql_1.Root()),
-    __param(1, type_graphql_1.Ctx()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Comment_1.Comment, Object]),
-    __metadata("design:returntype", Promise)
-], CommentResolver.prototype, "voteStatus", null);
 __decorate([
     type_graphql_1.Mutation(() => Boolean),
     type_graphql_1.UseMiddleware(isAuth_1.isAuth),
